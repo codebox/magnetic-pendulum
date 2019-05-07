@@ -1,11 +1,25 @@
 <!DOCTYPE html>
 <html>
-    <head>Magnetic Pendulum</head>
+    <head>
+        <title>Magnetic Pendulum<</title>
+    </head>
     <link rel="stylesheet" href="css/main.css">
     <body>
-        <div id="display">
-            <div id="fixture" class="object"></div>
-            <div id="mass" class="object"></div>
+        <h1>Magnetic Pendulum</h1>
+        <div id="container">
+            <div id="viewAbove" class="innerBox">
+                <h2>View from above</h2>
+                <canvas id="viewAboveCanvas"></canvas>
+            </div>
+            <div id="controls" class="innerBox">
+                <h2>Controls</h2>
+                <div id="controlGravity" class="controlBox"></div>
+                <div id="controlAirResistance" class="controlBox"></div>
+            </div>
+            <div id="viewSide" class="innerBox">
+                <h2>View from the side</h2>
+                <canvas id="viewSideCanvas"></canvas>
+            </div>
         </div>
         <script src="js/model.js"></script>
         <script src="js/view.js"></script>
