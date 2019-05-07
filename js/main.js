@@ -71,4 +71,13 @@ function updateAndRender() {
     requestAnimationFrame(updateAndRender);
 }
 
+view.updateMagnetList(model);
+document.addEventListener('magnetRemoved', event => {
+    model.magnets.splice(event.detail, 1);
+    view.updateMagnetList(model);
+});
+document.addEventListener('magnetChanged', event => {
+    model.magnets[event.detail.index].m = event.detail.newValue;
+});
+
 requestAnimationFrame(updateAndRender);

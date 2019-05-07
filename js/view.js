@@ -10,7 +10,7 @@ const view = (() => {
         fixture : 'black'
     };
 
-    function buildCanvasWrapper(canvasEl, transformCoords) {
+    function buildCanvasWrapper(canvasEl, transformCoords, customRenderFn) {
         const width = canvasEl.clientWidth,
             height = canvasEl.clientHeight,
             magnification = 20,
@@ -43,15 +43,22 @@ const view = (() => {
             return transformCoords(x, y, z, magnification, width, height);
         }
 
+        const render = customRenderFn || (model => {
+            clear();
+            drawLine(transform(model.fixture.position), transform(model.mass.position), colours.rope);
+            drawCircle(transform(model.fixture.position), 5, colours.fixture);
+            model.magnets.forEach(magnet => {
+                drawCircle(transform(magnet.position), 10, colours.magnet, colours.magnetOutline);
+            });
+            drawCircle(transform(model.mass.position), 20, colours.bob, colours.bobOutline);
+        });
         return {
-            render(model) {
-                clear();
-                drawLine(transform(model.fixture.position), transform(model.mass.position), colours.rope);
-                drawCircle(transform(model.fixture.position), 5, colours.fixture);
-                model.magnets.forEach(magnet => {
-                    drawCircle(transform(magnet.position), 10, colours.magnet, colours.magnetOutline);
-                });
-                drawCircle(transform(model.mass.position), 20, colours.bob, colours.bobOutline);
+            render,
+            drawImage(img) {
+                ctx.drawImage(img, 0, 0, width, height);
+            },
+            getCanvas(){
+                return canvasEl;
             }
         };
     }
@@ -61,6 +68,14 @@ const view = (() => {
                 x: x * magnification + canvasWidth / 2,
                 y: z * magnification + canvasHeight / 2
             };
+        }),
+        viewAboveTrackCanvas = buildCanvasWrapper(document.createElement('canvas'), (x, y, z, magnification, canvasWidth, canvasHeight) => {
+            return {
+                x: x * magnification + canvasWidth / 2,
+                y: z * magnification + canvasHeight / 2
+            };
+        }, () => {
+
         }),
         viewSideCanvas = buildCanvasWrapper(document.getElementById('viewSideCanvas'), (x, y, z, magnification, canvasWidth, canvasHeight) => {
             return {
@@ -72,7 +87,42 @@ const view = (() => {
     return {
         render(model) {
             viewAboveCanvas.render(model);
+            //viewAboveCanvas.drawImage(viewAboveTrackCanvas.getCanvas());
             viewSideCanvas.render(model);
+        },
+        updateMagnetList(model) {
+            const magnetList = document.getElementById('magnetList');
+            while (magnetList.firstChild) {
+                magnetList.removeChild(magnetList.firstChild);
+            }
+            model.magnets.forEach((magnet, i) => {
+                const box = document.createElement('div'),
+                    label = document.createElement('label'),
+                    slider = document.createElement('input'),
+                    removeButton = document.createElement('button');
+
+                box.setAttribute('class', 'magnetBox');
+
+                label.innerText = String.fromCharCode(65 + i);
+                box.appendChild(label);
+
+                slider.setAttribute('min', 0);
+                slider.setAttribute('max', 20);
+                slider.value = magnet.m;
+                slider.setAttribute('type', 'range');
+                slider.oninput = () => {
+                    document.dispatchEvent(new CustomEvent('magnetChanged', { detail: {index:i, newValue:slider.value }}));
+                };
+                box.appendChild(slider);
+
+                removeButton.innerHTML = 'x';
+                removeButton.onclick = () => {
+                    document.dispatchEvent(new CustomEvent('magnetRemoved', { detail: i }))
+                };
+                box.appendChild(removeButton);
+
+                magnetList.appendChild(box);
+            });
         }
     };
 })();

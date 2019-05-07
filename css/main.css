@@ -14,10 +14,23 @@
 #controls {
     flex-basis: 200px;
 }
-.controlBox{
+.magnetBox{
     border: 1px solid grey;
     flex-basis: 30px;
     margin: 2px;
+    display: flex;
+}
+.magnetBox label {
+    margin: 2px 5px;
+    flex: 0 0 20px;
+}
+.magnetBox input {
+    flex: 1 0;
+}
+.magnetBox button {
+    flex: 0 0 20px;
+    margin: 2px 5px;
+    cursor: pointer;
 }
 #viewAbove, #viewSide, #controls {
     flex-grow: 0;
