@@ -56,9 +56,8 @@ const model = (() => {
     return {
         gravity : vector([0, -10, 0]),
         magnets : [
-            {position:vector([1,0,5]),m:80},
-            {position:vector([1,0,-5]),m:80},
-            {position:vector([-5,0,1]),m:80}
+            {position:vector([1,0,5]),m:8},
+            {position:vector([-5,0,1]),m:8}
         ],
         fixture : {
             length : springLength,

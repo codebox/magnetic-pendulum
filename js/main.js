@@ -17,7 +17,7 @@ function calculateForce(model) {
     const SPRING_CONSTANT = 100,
         M = 100,
         DRAG = 0.5,
-        DAMPING = 0.1,
+        DAMPING = 1,
         fromMassToFixture = model.fixture.position.subtract(model.mass.position),
         theta = fromMassToFixture.reverse().angleBetween(model.gravity),
         gravityComponent = model.mass.m * model.gravity.length() * Math.cos(theta),
