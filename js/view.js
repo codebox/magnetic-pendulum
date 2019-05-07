@@ -2,10 +2,12 @@ const view = (() => {
     "use strict";
 
     const colours = {
-        bob : 'blue',
+        bob : '#FFA700',
         bobOutline : 'black',
-        magnet : 'darkgrey',
-        magnetOutline : 'black',
+        magnet : '#1144AA',
+        magnetOutline : '#05296E',
+        magneticField : '#6B8FD455',
+        magneticFieldOutline : '#4575D455',
         rope : 'lightgrey',
         fixture : 'black'
     };
@@ -37,6 +39,11 @@ const view = (() => {
             ctx.lineTo(toXy.x, toXy.y);
             ctx.stroke();
         }
+        function text(xy, text, colour = 'black', font='10px sans-serif') {
+            ctx.font = font;
+            ctx.fillStyle = colour;
+            ctx.fillText(text, xy.x - 15, xy.y);
+        }
 
         function transform(position){
             const [x,y,z] = position.toArray();
@@ -47,8 +54,10 @@ const view = (() => {
             clear();
             drawLine(transform(model.fixture.position), transform(model.mass.position), colours.rope);
             drawCircle(transform(model.fixture.position), 5, colours.fixture);
-            model.magnets.forEach(magnet => {
+            model.magnets.forEach((magnet, i) => {
+                drawCircle(transform(magnet.position), 10 + magnet.m * 5, colours.magneticField, colours.magneticFieldOutline);
                 drawCircle(transform(magnet.position), 10, colours.magnet, colours.magnetOutline);
+                text(transform(magnet.position), String.fromCharCode(65 + i));
             });
             drawCircle(transform(model.mass.position), 20, colours.bob, colours.bobOutline);
         });
