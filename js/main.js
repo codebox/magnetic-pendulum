@@ -18,7 +18,6 @@ function getNewVelocity(u, t, a){
 
 function calculateForce(model) {
     "use strict";
-    //see https://news.ycombinator.com/item?id=8007477
     const SPRING_CONSTANT = 100,
         M = 100,
         DRAG = 0.5,
