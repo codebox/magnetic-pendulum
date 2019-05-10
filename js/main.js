@@ -36,7 +36,7 @@ function calculateForce(model) {
     model.magnets.forEach(mag => {
         const d = model.mass.position.distanceBetween(mag.position),
             fromMassToMagnet = mag.position.subtract(model.mass.position);
-        magneticAcc = magneticAcc.add(fromMassToMagnet.normalise().multiply(M * mag.m / (d * d)));
+        magneticAcc = magneticAcc.add(fromMassToMagnet.normalise().multiply(M * mag.m / Math.max(d * d, 0.1)));
     });
 
     const theta2 = fromMassToFixture.reverse().angleBetween(magneticAcc),
