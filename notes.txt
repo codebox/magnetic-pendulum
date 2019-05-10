@@ -1,4 +1,5 @@
 TODO
+----
 
 * remove hard-coded '10's representing rope length
 * add sliders for environmental parameters eg air-resistance, spring constant, gravity etc
@@ -8,3 +9,13 @@ TODO
 * break code apart more
 * fade mass colour according to distance
 * user prompts (eg shift key to move mass)
+
+View Events
+-----------
+startStopClicked    button click
+addMagnetClicked    button click
+canvasClicked       canvas click
+magnetChanged
+magnetRemoved
+massMoved           user drags mass
+massReleased        user releases mass after dragging

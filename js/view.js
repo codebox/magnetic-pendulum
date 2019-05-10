@@ -94,12 +94,6 @@ const view = (() => {
                 y: z * magnification + canvasHeight / 2
             };
         }),
-        viewAboveTrackCanvas = buildCanvasWrapper(document.createElement('canvas'), (x, y, z, magnification, canvasWidth, canvasHeight) => {
-            return {
-                x: x * magnification + canvasWidth / 2,
-                y: z * magnification + canvasHeight / 2
-            };
-        }),
         viewSideCanvas = buildCanvasWrapper(document.getElementById('viewSideCanvas'), (x, y, z, magnification, canvasWidth, canvasHeight) => {
             return {
                 x:  x * magnification + canvasWidth  / 2,
@@ -109,24 +103,13 @@ const view = (() => {
         addMagnet = document.getElementById('addMagnet'),
         startStop = document.getElementById('startStop');
 
-    let addingMagnet = false;
     addMagnet.onclick = () => {
-        addingMagnet = !addingMagnet;
-        if (addingMagnet) {
-            addMagnet.innerText = 'Cancel';
-        } else {
-            addMagnet.innerText = 'Add Magnet';
-        }
+        document.dispatchEvent(new CustomEvent('addMagnetClicked'));
     };
+
     viewAboveCanvas.onClick((canvasCoords, magnification, canvasWidth, canvasHeight) => {
-        if (addingMagnet){
-            model.magnets.push({
-                position : vector([(canvasCoords.x - canvasWidth/2) / magnification, 0, (-canvasHeight/2 + canvasCoords.y)/magnification]),
-                m : 5
-            });
-            document.dispatchEvent(new CustomEvent('magnetAdded'));
-        }
-    })
+        document.dispatchEvent(new CustomEvent('canvasClicked', {detail : {position: vector([(canvasCoords.x - canvasWidth/2) / magnification, 0, (-canvasHeight/2 + canvasCoords.y)/magnification])}}));
+    });
 
     viewAboveCanvas.onMouseMove((canvasCoords, magnification, canvasWidth, canvasHeight) => {
         if (shiftDown){
@@ -162,7 +145,6 @@ const view = (() => {
     return {
         render(model) {
             viewAboveCanvas.render(model);
-            //viewAboveCanvas.drawImage(viewAboveTrackCanvas.getCanvas());
             viewSideCanvas.render(model);
         },
         onStart(){
@@ -172,13 +154,13 @@ const view = (() => {
             startStop.innerText = 'Start';
         },
         onAddingMagnet(){
-
+            addMagnet.innerText = 'Cancel';
         },
         onAddingMagnetDone(){
-
+            addMagnet.innerText = 'Add Magnet';
         },
         onAddingMagnetCancelled() {
-
+            addMagnet.innerText = 'Add Magnet';
         },
         updateMagnetList(model) {
             const magnetList = document.getElementById('magnetList');

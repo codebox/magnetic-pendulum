@@ -69,7 +69,7 @@ const state = (() => {
     const stateStopped = 'stopped',
         stateRunning = 'running';
 
-    let state, stateChangeHandler;
+    let state, stateChangeHandler, addMagnetHandler, addingMagnet;
 
     function stateChanged() {
         if (stateChangeHandler) {
@@ -77,6 +77,12 @@ const state = (() => {
                 running: state === stateRunning,
                 stopped: state === stateStopped
             });
+        }
+    }
+
+    function addMagnetChanged() {
+        if (addMagnetHandler){
+            addMagnetHandler(addingMagnet);
         }
     }
 
@@ -94,6 +100,20 @@ const state = (() => {
         },
         isRunning(){
             return state === stateRunning;
+        },
+        addingMagnet(){
+            addingMagnet = true;
+            addMagnetChanged();
+        },
+        notAddingMagnet(){
+            addingMagnet = false;
+            addMagnetChanged();
+        },
+        onAddMagnetChanged(handler) {
+            addMagnetHandler = handler;
+        },
+        isAddingMagnet(){
+            return addingMagnet;
         }
     };
 })();
@@ -109,6 +129,15 @@ state.onStateChanged(state => {
 
     } else {
         assert(false, 'Bad state', state)
+    }
+});
+
+state.onAddMagnetChanged(isAddingMagnet => {
+    "use strict";
+    if (isAddingMagnet) {
+        view.onAddingMagnet();
+    } else {
+        view.onAddingMagnetCancelled();
     }
 });
 
@@ -131,15 +160,19 @@ function updateAndRender() {
 }
 
 view.updateMagnetList(model);
+document.addEventListener('addMagnetClicked', event => {
+    if (state.isAddingMagnet()) {
+        state.notAddingMagnet();
+    } else {
+        state.addingMagnet();
+    }
+});
 document.addEventListener('magnetRemoved', event => {
     model.magnets.splice(event.detail, 1);
     view.updateMagnetList(model);
 });
 document.addEventListener('magnetChanged', event => {
     model.magnets[event.detail.index].m = event.detail.newValue;
-});
-document.addEventListener('magnetAdded', event => {
-    view.updateMagnetList(model);
 });
 document.addEventListener('startStopClicked', event => {
     if (state.isRunning()){
@@ -148,6 +181,18 @@ document.addEventListener('startStopClicked', event => {
         state.started();
     }
 });
+document.addEventListener('canvasClicked', event => {
+    if (state.isAddingMagnet()) {
+        state.notAddingMagnet();
+        view.onAddingMagnetDone();
+        model.magnets.push({
+            position: event.detail.position,
+            m : 5
+        });
+        view.updateMagnetList(model);
+    }
+});
+
 
 let prevMassLocation, prevMassVelocity, prevMassTs;
 document.addEventListener('massMoved', event => {
