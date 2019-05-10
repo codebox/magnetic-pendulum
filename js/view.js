@@ -68,6 +68,22 @@ const view = (() => {
             },
             getCanvas(){
                 return canvasEl;
+            },
+            onClick(handler) {
+                canvasEl.onclick = event => {
+                    const rect = canvasEl.getBoundingClientRect(),
+                        x = event.clientX - rect.left,
+                        y = event.clientY - rect.top;
+                    handler({x,y}, magnification, width, height);
+                };
+            },
+            onMouseMove(handler) {
+                canvasEl.onmousemove = event => {
+                    const rect = canvasEl.getBoundingClientRect(),
+                        x = event.clientX - rect.left,
+                        y = event.clientY - rect.top;
+                    handler({x,y}, magnification, width, height);
+                };
             }
         };
     }
@@ -83,21 +99,86 @@ const view = (() => {
                 x: x * magnification + canvasWidth / 2,
                 y: z * magnification + canvasHeight / 2
             };
-        }, () => {
-
         }),
         viewSideCanvas = buildCanvasWrapper(document.getElementById('viewSideCanvas'), (x, y, z, magnification, canvasWidth, canvasHeight) => {
             return {
                 x:  x * magnification + canvasWidth  / 2,
                 y: -y * magnification + canvasHeight / 2
             };
-        });
+        }),
+        addMagnet = document.getElementById('addMagnet'),
+        startStop = document.getElementById('startStop');
+
+    let addingMagnet = false;
+    addMagnet.onclick = () => {
+        addingMagnet = !addingMagnet;
+        if (addingMagnet) {
+            addMagnet.innerText = 'Cancel';
+        } else {
+            addMagnet.innerText = 'Add Magnet';
+        }
+    };
+    viewAboveCanvas.onClick((canvasCoords, magnification, canvasWidth, canvasHeight) => {
+        if (addingMagnet){
+            model.magnets.push({
+                position : vector([(canvasCoords.x - canvasWidth/2) / magnification, 0, (-canvasHeight/2 + canvasCoords.y)/magnification]),
+                m : 5
+            });
+            document.dispatchEvent(new CustomEvent('magnetAdded'));
+        }
+    })
+
+    viewAboveCanvas.onMouseMove((canvasCoords, magnification, canvasWidth, canvasHeight) => {
+        if (shiftDown){
+            const mouseX = (canvasCoords.x - canvasWidth/2) / magnification,
+                mouseZ = (-canvasHeight/2 + canvasCoords.y)/magnification,
+                l = Math.sqrt(mouseX * mouseX + mouseZ * mouseZ),
+                h = Math.sqrt(10 * 10 - l * l),
+                outside = l > 10,
+                mouseY = outside ? 10 : 10 - h;
+
+            const mouseCoords = vector([mouseX, mouseY, mouseZ]);
+            document.dispatchEvent(new CustomEvent('massMoved', {detail : {position : mouseCoords}}));
+        }
+    });
+
+    startStop.onclick = () => {
+        document.dispatchEvent(new CustomEvent('startStopClicked'));
+    };
+
+    let shiftDown = false;
+    document.addEventListener('keydown', event => {
+        if (event.keyCode === 16){
+            shiftDown = true;
+        }
+    });
+    document.addEventListener('keyup', event => {
+        if (event.keyCode === 16){
+            shiftDown = false;
+            document.dispatchEvent(new CustomEvent('massReleased'));
+        }
+    });
 
     return {
         render(model) {
             viewAboveCanvas.render(model);
             //viewAboveCanvas.drawImage(viewAboveTrackCanvas.getCanvas());
             viewSideCanvas.render(model);
+        },
+        onStart(){
+            startStop.innerText = 'Stop';
+        },
+        onStop(){
+            startStop.innerText = 'Start';
+        },
+        onAddingMagnet(){
+
+        },
+        onAddingMagnetDone(){
+
+        },
+        onAddingMagnetCancelled() {
+
         },
         updateMagnetList(model) {
             const magnetList = document.getElementById('magnetList');

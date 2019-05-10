@@ -56,9 +56,9 @@ const model = (() => {
     return {
         gravity : vector([0, -10, 0]),
         magnets : [
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), 0, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), 0, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), 0, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:9}
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), -1, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), -1, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:9}
         ],
         fixture : {
             length : springLength,

@@ -1,4 +1,9 @@
-
+function assert(cond, msg){
+    "use strict";
+    if (!cond){
+        throw new Error(msg);
+    }
+}
 function getNewPosition(p, u, t, a) {
     "use strict";
     //return u * t + a * t * t / 2;
@@ -58,13 +63,67 @@ function updateSystem(t){
     model.mass.velocity = newVelocity;
 }
 
+const state = (() => {
+    "use strict";
+
+    const stateStopped = 'stopped',
+        stateRunning = 'running';
+
+    let state, stateChangeHandler;
+
+    function stateChanged() {
+        if (stateChangeHandler) {
+            stateChangeHandler({
+                running: state === stateRunning,
+                stopped: state === stateStopped
+            });
+        }
+    }
+
+    return {
+        started() {
+            state = stateRunning;
+            stateChanged();
+        },
+        stopped() {
+            state = stateStopped;
+            stateChanged();
+        },
+        onStateChanged(handler) {
+            stateChangeHandler = handler;
+        },
+        isRunning(){
+            return state === stateRunning;
+        }
+    };
+})();
+
+state.onStateChanged(state => {
+    "use strict";
+    if (state.running){
+        view.onStart();
+        requestAnimationFrame(updateAndRender);
+
+    } else if (state.stopped) {
+        view.onStop();
+
+    } else {
+        assert(false, 'Bad state', state)
+    }
+});
+
 let prevT;
 function updateAndRender() {
     let now = Date.now() / 1000;
     if (prevT === undefined) {
+        // don't draw anything
 
     } else {
-        updateSystem(now - prevT);
+        if (state.isRunning()) {
+            updateSystem(Math.min(1 / 10, now - prevT));
+        } else {
+            prevT = undefined;
+        }
         view.render(model);
     }
     prevT = now;
@@ -79,5 +138,33 @@ document.addEventListener('magnetRemoved', event => {
 document.addEventListener('magnetChanged', event => {
     model.magnets[event.detail.index].m = event.detail.newValue;
 });
+document.addEventListener('magnetAdded', event => {
+    view.updateMagnetList(model);
+});
+document.addEventListener('startStopClicked', event => {
+    if (state.isRunning()){
+        state.stopped();
+    } else {
+        state.started();
+    }
+});
 
-requestAnimationFrame(updateAndRender);
+let prevMassLocation, prevMassVelocity, prevMassTs;
+document.addEventListener('massMoved', event => {
+    const ts = Date.now() / 1000,
+        massLocation = event.detail.position;
+    if (prevMassLocation) {
+        prevMassVelocity = massLocation.subtract(prevMassLocation).multiply(1/(ts - prevMassTs));
+        model.mass.position = prevMassLocation;
+        model.mass.velocity = prevMassVelocity;
+    }
+    prevMassLocation = massLocation;
+    prevMassTs = ts;
+    state.stopped();
+});
+document.addEventListener('massReleased', event => {
+    prevMassLocation = prevMassVelocity = prevMassTs = undefined;
+    state.started();
+});
+
+
