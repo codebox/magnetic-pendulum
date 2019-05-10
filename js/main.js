@@ -29,7 +29,7 @@ function calculateForce(model) {
         velAngle = fromMassToFixture.angleBetween(model.mass.velocity),
         velocity = Math.abs(model.mass.velocity.length() * Math.sin(velAngle)),
         centrepetal = model.mass.m * velocity * velocity  / l,
-        springForce = (l - 10) * SPRING_CONSTANT,
+        springForce = (l - model.springLength) * SPRING_CONSTANT,
         springDamping = velocity * DAMPING;
 
     let magneticAcc = vector([0,0,0]);

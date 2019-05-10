@@ -116,9 +116,9 @@ const view = (() => {
             const mouseX = (canvasCoords.x - canvasWidth/2) / magnification,
                 mouseZ = (-canvasHeight/2 + canvasCoords.y)/magnification,
                 l = Math.sqrt(mouseX * mouseX + mouseZ * mouseZ),
-                h = Math.sqrt(10 * 10 - l * l),
-                outside = l > 10,
-                mouseY = outside ? 10 : 10 - h;
+                h = Math.sqrt(model.springLength * model.springLength - l * l),
+                outside = l > model.springLength,
+                mouseY = outside ? model.springLength : model.springLength - h;
 
             const mouseCoords = vector([mouseX, mouseY, mouseZ]);
             document.dispatchEvent(new CustomEvent('massMoved', {detail : {position : mouseCoords}}));

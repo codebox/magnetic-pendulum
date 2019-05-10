@@ -2,7 +2,6 @@ TODO
 ----
 
 * energy in system increases over time see https://news.ycombinator.com/item?id=8007477
-* remove hard-coded '10's representing rope length
 * add sliders for environmental parameters eg air-resistance, spring constant, gravity etc
 * remove letters from magnets, highlight magnets when hovering over sliders
 * add magnet presets
@@ -10,6 +9,7 @@ TODO
 * break code apart more
 * fade mass colour according to distance?
 * user prompts (eg shift key to move mass)
+* lots of magic numbers in the code
 
 View Events
 -----------

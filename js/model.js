@@ -68,6 +68,7 @@ const model = (() => {
             m : 10,
             position : vector([springLength, springLength, 0]),
             velocity : vector([0, 0, 0])
-        }
+        },
+        springLength
     };
 })();
