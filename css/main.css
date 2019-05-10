@@ -14,6 +14,9 @@
 #controls {
     flex-basis: 200px;
 }
+.overlay{
+    display: none;
+}
 .magnetBox{
     border: 1px solid grey;
     flex-basis: 30px;

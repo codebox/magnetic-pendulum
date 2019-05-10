@@ -44,6 +44,13 @@ function vector(values){
         },
         toArray() {
             return [...values];
+        },
+        max(maxLen){
+            const length = this.length();
+            if (length > maxLen){
+                return this.multiply(maxLen / length);
+            }
+            return this;
         }
     };
 }

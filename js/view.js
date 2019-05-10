@@ -12,17 +12,22 @@ const view = (() => {
         fixture : 'black'
     };
 
-    function buildCanvasWrapper(canvasEl, transformCoords, customRenderFn) {
-        const width = canvasEl.clientWidth,
+    function buildCanvasWrapper(canvasEl, transformCoords) {
+        const overlayEl = document.createElement('canvas'),
+            width = canvasEl.clientWidth,
             height = canvasEl.clientHeight,
             magnification = 20,
-            ctx = canvasEl.getContext('2d');
+            ctx = canvasEl.getContext('2d'),
+            overlayCtx = overlayEl.getContext('2d');
 
-        canvasEl.width = width;
-        canvasEl.height = height;
+        canvasEl.width = overlayEl.width = width;
+        canvasEl.height = overlayEl.height = height;
 
         function clear() {
             ctx.clearRect(0, 0, width, height);
+        }
+        function clearOverlay() {
+            overlayCtx.clearRect(0, 0, width, height);
         }
         function drawCircle(xy, diameter, fillColour, outlineColour=fillColour) {
             ctx.fillStyle = fillColour;
@@ -31,6 +36,23 @@ const view = (() => {
             ctx.arc(xy.x, xy.y, diameter/2, 0, Math.PI * 2);
             ctx.stroke();
             ctx.fill();
+        }
+        function drawOverlayDot(prevXy, xy, diameter, fillColour, outlineColour=fillColour, copyToMainCanvas) {
+            overlayCtx.fillStyle = fillColour;
+            overlayCtx.strokeStyle = outlineColour;
+            overlayCtx.beginPath();
+            // if (prevXy){
+            //     overlayCtx.moveTo(prevXy.x, prevXy.y);
+            //     overlayCtx.lineTo(xy.x, xy.y);
+            //     overlayCtx.moveTo(xy.x, xy.y);
+            // }
+            overlayCtx.arc(xy.x, xy.y, diameter/2, 0, Math.PI * 2);
+            overlayCtx.stroke();
+            overlayCtx.fill();
+
+            if (copyToMainCanvas) {
+                ctx.drawImage(overlayEl, 0, 0, width, height);
+            }
         }
         function drawLine(fromXy, toXy, colour) {
             ctx.strokeStyle = colour;
@@ -50,7 +72,8 @@ const view = (() => {
             return transformCoords(x, y, z, magnification, width, height);
         }
 
-        const render = customRenderFn || (model => {
+        let previousMassPosition;
+        const render = (model, showOverlay) => {
             clear();
             drawLine(transform(model.fixture.position), transform(model.mass.position), colours.rope);
             drawCircle(transform(model.fixture.position), 5, colours.fixture);
@@ -59,13 +82,13 @@ const view = (() => {
                 drawCircle(transform(magnet.position), 10, colours.magnet, colours.magnetOutline);
                 text(transform(magnet.position), String.fromCharCode(65 + i));
             });
+            drawOverlayDot(previousMassPosition && transform(previousMassPosition), transform(model.mass.position), 3, colours.bob, colours.bobOutline, showOverlay);
             drawCircle(transform(model.mass.position), 20, colours.bob, colours.bobOutline);
-        });
+            previousMassPosition = model.mass.position;
+        };
         return {
             render,
-            drawImage(img) {
-                ctx.drawImage(img, 0, 0, width, height);
-            },
+            clearOverlay,
             getCanvas(){
                 return canvasEl;
             },
@@ -101,7 +124,17 @@ const view = (() => {
             };
         }),
         addMagnet = document.getElementById('addMagnet'),
-        startStop = document.getElementById('startStop');
+        startStop = document.getElementById('startStop'),
+        toggleOverlay = document.getElementById('toggleOverlay'),
+        clearOverlay = document.getElementById('clearOverlay');
+
+    let showOverlay;
+    toggleOverlay.onclick = () => {
+        document.dispatchEvent(new CustomEvent('toggleOverlayClicked'));
+    };
+    clearOverlay.onclick = () => {
+        document.dispatchEvent(new CustomEvent('clearOverlayClicked'));
+    };
 
     addMagnet.onclick = () => {
         document.dispatchEvent(new CustomEvent('addMagnetClicked'));
@@ -144,8 +177,8 @@ const view = (() => {
 
     return {
         render(model) {
-            viewAboveCanvas.render(model);
-            viewSideCanvas.render(model);
+            viewAboveCanvas.render(model, showOverlay);
+            viewSideCanvas.render(model, showOverlay);
         },
         onStart(){
             startStop.innerText = 'Stop';
@@ -161,6 +194,20 @@ const view = (() => {
         },
         onAddingMagnetCancelled() {
             addMagnet.innerText = 'Add Magnet';
+        },
+        onShowOverlay(){
+            toggleOverlay.innerText = 'Hide Trace';
+            showOverlay = true;
+            clearOverlay.style.display = 'inline';
+        },
+        onHideOverlay(){
+            toggleOverlay.innerText = 'Show Trace';
+            showOverlay = false;
+            clearOverlay.style.display = 'none';
+        },
+        onClearOverlay(){
+            viewAboveCanvas.clearOverlay();
+            viewSideCanvas.clearOverlay();
         },
         updateMagnetList(model) {
             const magnetList = document.getElementById('magnetList');

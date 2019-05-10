@@ -68,7 +68,7 @@ const state = (() => {
     const stateStopped = 'stopped',
         stateRunning = 'running';
 
-    let state, stateChangeHandler, addMagnetHandler, addingMagnet;
+    let state, stateChangeHandler, addMagnetHandler, addingMagnet, showingTrace, showingTraceHandler;
 
     function stateChanged() {
         if (stateChangeHandler) {
@@ -82,6 +82,12 @@ const state = (() => {
     function addMagnetChanged() {
         if (addMagnetHandler){
             addMagnetHandler(addingMagnet);
+        }
+    }
+
+    function showingTraceChanged() {
+        if (showingTraceHandler){
+            showingTraceHandler(showingTrace);
         }
     }
 
@@ -113,6 +119,20 @@ const state = (() => {
         },
         isAddingMagnet(){
             return addingMagnet;
+        },
+        showingTrace() {
+            showingTrace = true;
+            showingTraceChanged();
+        },
+        notShowingTrace() {
+            showingTrace = false;
+            showingTraceChanged();
+        },
+        isShowingTrace() {
+            return showingTrace;
+        },
+        onShowingTraceChanged(handler) {
+            showingTraceHandler = handler;
         }
     };
 })();
@@ -137,6 +157,15 @@ state.onAddMagnetChanged(isAddingMagnet => {
         view.onAddingMagnet();
     } else {
         view.onAddingMagnetCancelled();
+    }
+});
+
+state.onShowingTraceChanged(isShowingTrace => {
+    "use strict";
+    if (isShowingTrace){
+        view.onShowOverlay();
+    } else {
+        view.onHideOverlay();
     }
 });
 
@@ -173,6 +202,18 @@ document.addEventListener('magnetRemoved', event => {
 document.addEventListener('magnetChanged', event => {
     model.magnets[event.detail.index].m = event.detail.newValue;
 });
+document.addEventListener('toggleOverlayClicked', event => {
+    if (state.isShowingTrace()) {
+        state.notShowingTrace();
+    } else {
+        state.showingTrace();
+    }
+});
+document.addEventListener('clearOverlayClicked', event => {
+    "use strict";
+    view.onClearOverlay();
+});
+
 document.addEventListener('startStopClicked', event => {
     if (state.isRunning()){
         state.stopped();
@@ -192,13 +233,12 @@ document.addEventListener('canvasClicked', event => {
     }
 });
 
-
 let prevMassLocation, prevMassVelocity, prevMassTs;
 document.addEventListener('massMoved', event => {
     const ts = Date.now() / 1000,
         massLocation = event.detail.position;
     if (prevMassLocation) {
-        prevMassVelocity = massLocation.subtract(prevMassLocation).multiply(1/(ts - prevMassTs));
+        prevMassVelocity = massLocation.subtract(prevMassLocation).multiply(1/(ts - prevMassTs)).max(50);
         model.mass.position = prevMassLocation;
         model.mass.velocity = prevMassVelocity;
     }
@@ -211,4 +251,5 @@ document.addEventListener('massReleased', event => {
     state.started();
 });
 
-
+state.notShowingTrace();
+state.started();
