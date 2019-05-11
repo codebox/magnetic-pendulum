@@ -5,7 +5,6 @@ TODO
 * add sliders for environmental parameters eg air-resistance, spring constant, gravity etc
 * remove letters from magnets, highlight magnets when hovering over sliders
 * add magnet presets
-* add new canvas to show path traced by mass
 * break code apart more
 * fade mass colour according to distance?
 * user prompts (eg shift key to move mass)

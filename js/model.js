@@ -62,11 +62,7 @@ const model = (() => {
 
     return {
         gravity : vector([0, -10, 0]),
-        magnets : [
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), -1, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), -1, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:9}
-        ],
+        magnets : [],
         fixture : {
             length : springLength,
             position : vector([0, springLength, 0])
@@ -79,3 +75,21 @@ const model = (() => {
         springLength
     };
 })();
+
+const presets = {
+    'Triangle' : {
+        magnets : [
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), -1, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), -1, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:9}
+        ]
+    },
+    'Square' : {
+        magnets : [
+            {position: vector([-3, 0, -3]), m:5},
+            {position: vector([-3, 0, 3]), m:5},
+            {position: vector([3, 0, -3]), m:5},
+            {position: vector([3, 0, 3]), m:5}
+        ]
+    }
+};

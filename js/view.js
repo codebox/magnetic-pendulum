@@ -41,12 +41,13 @@ const view = (() => {
             overlayCtx.fillStyle = fillColour;
             overlayCtx.strokeStyle = outlineColour;
             overlayCtx.beginPath();
+            overlayCtx.strokeStyle = '';
             // if (prevXy){
             //     overlayCtx.moveTo(prevXy.x, prevXy.y);
             //     overlayCtx.lineTo(xy.x, xy.y);
             //     overlayCtx.moveTo(xy.x, xy.y);
             // }
-            overlayCtx.arc(xy.x, xy.y, diameter/2, 0, Math.PI * 2);
+            overlayCtx.arc(xy.x, xy.y, diameter, 0, Math.PI * 2);
             overlayCtx.stroke();
             overlayCtx.fill();
 
@@ -173,6 +174,17 @@ const view = (() => {
             shiftDown = false;
             document.dispatchEvent(new CustomEvent('massReleased'));
         }
+    });
+
+    const presetList = document.getElementById('presetList');
+    Object.keys(presets).forEach(presetName => {
+        const preset = presets[presetName],
+            link = document.createElement('a');
+        link.innerText = presetName;
+        link.onclick = () => {
+            model.magnets = [...preset.magnets];
+        };
+        presetList.appendChild(link);
     });
 
     return {
