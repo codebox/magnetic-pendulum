@@ -169,7 +169,6 @@ const view = (() => {
                 mouseZ = outside ? model.springLength : model.springLength - d;
 
             const mouseCoords = vector([mouseX, mouseY, mouseZ]);
-            console.log(mouseX, mouseY, mouseZ, l, d)
             document.dispatchEvent(new CustomEvent('massMoved', {detail : {position : mouseCoords}}));
         }
     });
