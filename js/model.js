@@ -77,27 +77,35 @@ const springLength = 10;
         };
     })();
 
-const presets = {
-    'Blank' : {
-        magnets : []
-    },
-    'Triangle' : {
-        magnets : [
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), -1, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), -1, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:8}
-        ],
-        position : vector([springLength, springLength, 0]),
-        velocity : vector([0, 0, 10])
-    },
-    'Square' : {
-        magnets : [
-            {position: vector([-3, 0, -3]), m:6},
-            {position: vector([-3, 0, 3]),  m:6},
-            {position: vector([3, 0, -3]),  m:6},
-            {position: vector([3, 0, 3]),   m:6}
-        ],
-        position : vector([springLength, springLength, 0]),
-        velocity : vector([0, 0, -10])
+const presets = (() => {
+    function buildMagnetCoords(sides, distance, m, y=0, offset=0){
+        return Array.from({length: sides}, (_, i) => {
+            const angle = i * Math.PI * 2 / sides + offset;
+            return {
+                position : vector([distance * Math.sin(angle), y, distance * Math.cos(angle)]),
+                m
+            };
+        });
     }
-};
+
+    return {
+        'Blank' : {
+            magnets : []
+        },
+        'Triangle' : {
+            magnets : buildMagnetCoords(3, 5, 8, -1),
+            position : vector([springLength, springLength, 0]),
+            velocity : vector([0, 0, 10])
+        },
+        'Square' : {
+            magnets : buildMagnetCoords(4, 4, 6, 0, Math.PI / 4),
+            position : vector([springLength, springLength, 0]),
+            velocity : vector([0, 0, -10])
+        },
+        'Hexagons' : {
+            magnets : buildMagnetCoords(6, 4, 2).concat(buildMagnetCoords(6, 6, 6, 0, Math.PI / 6)),
+            position : vector([springLength, springLength, 0]),
+            velocity : vector([0, 0, 10])
+        }
+    };
+});
