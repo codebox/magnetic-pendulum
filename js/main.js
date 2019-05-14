@@ -43,10 +43,7 @@ function calculateForce(model) {
         tension = fromMassToFixture.normalise().multiply(tensionMagnitude),
         airResistance = model.mass.velocity.reverse().normalise().multiply(model.airResistance / 10 * velocity * velocity);
 
-    let force = model.gravity.multiply(model.mass.m);
-    force = force.add(tension).add(airResistance).add(magneticAcc.multiply(model.mass.m));
-
-    return force;
+    return model.gravity.multiply(model.mass.m).add(tension).add(airResistance).add(magneticAcc.multiply(model.mass.m));
 }
 
 function updateSystem(t){

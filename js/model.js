@@ -108,4 +108,4 @@ const presets = (() => {
             velocity : vector([0, 0, 10])
         }
     };
-});
+})();
