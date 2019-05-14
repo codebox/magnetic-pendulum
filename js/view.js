@@ -83,7 +83,7 @@ const view = (() => {
                 drawCircle(transform(magnet.position), 10, colours.magnet, colours.magnetOutline);
                 text(transform(magnet.position), String.fromCharCode(65 + i));
             });
-            drawOverlayDot(previousMassPosition && transform(previousMassPosition), transform(model.mass.position), 3, colours.bob, colours.bobOutline, showOverlay);
+            drawOverlayDot(previousMassPosition && transform(previousMassPosition), transform(model.mass.position), 2, colours.bob, colours.bobOutline, showOverlay);
             drawCircle(transform(model.mass.position), 20, colours.bob, colours.bobOutline);
             previousMassPosition = model.mass.position;
         };
@@ -182,10 +182,48 @@ const view = (() => {
             link = document.createElement('a');
         link.innerText = presetName;
         link.onclick = () => {
-            model.magnets = [...preset.magnets];
+            document.dispatchEvent(new CustomEvent('presetSelected', {detail:{name:presetName}}));
         };
         presetList.appendChild(link);
     });
+
+    function buildParameterSliders(){
+        "use strict";
+        const parameterList = document.getElementById('parameterList');
+
+        function buildParameterSlider(name, min, max, value, onChange){
+            const slider = buildSlider(name, min, max, value, (box, label, slider) => {
+               slider.oninput = onChange;
+            });
+            parameterList.appendChild(slider);
+        }
+
+        buildParameterSlider('Gravity', 0, 20, model.gravity.length(),
+            e => document.dispatchEvent(new CustomEvent('gravityChanged', {detail : {value : e.target.value}})));
+        buildParameterSlider('Spring Constant', 2, 500, model.springConstant,
+            e => document.dispatchEvent(new CustomEvent('springConstantChanged', {detail : {value : e.target.value}})));
+    }
+
+    function buildSlider(labelText, min, max, value, postProcess = () => {}){
+        const box = document.createElement('div'),
+            label = document.createElement('label'),
+            slider = document.createElement('input');
+
+        label.innerText = labelText;
+        box.appendChild(label);
+
+        slider.setAttribute('min', min);
+        slider.setAttribute('max', max);
+        slider.value = value;
+        slider.setAttribute('type', 'range');
+        box.appendChild(slider);
+
+        postProcess(box, label, slider);
+
+        return box;
+    }
+
+    buildParameterSliders();
 
     return {
         render(model) {
@@ -227,32 +265,21 @@ const view = (() => {
                 magnetList.removeChild(magnetList.firstChild);
             }
             model.magnets.forEach((magnet, i) => {
-                const box = document.createElement('div'),
-                    label = document.createElement('label'),
-                    slider = document.createElement('input'),
-                    removeButton = document.createElement('button');
+                buildSlider(String.fromCharCode(65 + i), 0, 20, magnet.m, (box, label, slider) => {
+                    const removeButton = document.createElement('button');
+                    removeButton.innerHTML = 'x';
+                    removeButton.onclick = () => {
+                        document.dispatchEvent(new CustomEvent('magnetRemoved', { detail: i }))
+                    };
+                    box.appendChild(removeButton);
 
-                box.setAttribute('class', 'magnetBox');
+                    box.setAttribute('class', 'magnetBox');
 
-                label.innerText = String.fromCharCode(65 + i);
-                box.appendChild(label);
-
-                slider.setAttribute('min', 0);
-                slider.setAttribute('max', 20);
-                slider.value = magnet.m;
-                slider.setAttribute('type', 'range');
-                slider.oninput = () => {
-                    document.dispatchEvent(new CustomEvent('magnetChanged', { detail: {index:i, newValue:slider.value }}));
-                };
-                box.appendChild(slider);
-
-                removeButton.innerHTML = 'x';
-                removeButton.onclick = () => {
-                    document.dispatchEvent(new CustomEvent('magnetRemoved', { detail: i }))
-                };
-                box.appendChild(removeButton);
-
-                magnetList.appendChild(box);
+                    slider.oninput = () => {
+                        document.dispatchEvent(new CustomEvent('magnetChanged', { detail: {index:i, newValue:slider.value }}));
+                    };
+                    magnetList.appendChild(box);
+                });
             });
         }
     };

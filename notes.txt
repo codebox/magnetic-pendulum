@@ -4,7 +4,6 @@ TODO
 * energy in system increases over time see https://news.ycombinator.com/item?id=8007477
 * add sliders for environmental parameters eg air-resistance, spring constant, gravity etc
 * remove letters from magnets, highlight magnets when hovering over sliders
-* add magnet presets
 * break code apart more
 * fade mass colour according to distance?
 * user prompts (eg shift key to move mass)

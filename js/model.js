@@ -55,41 +55,49 @@ function vector(values){
     };
 }
 
-const model = (() => {
-    "use strict";
+const springLength = 10;
+    model = (() => {
+        "use strict";
 
-    const springLength = 10;
-
-    return {
-        gravity : vector([0, -10, 0]),
-        magnets : [],
-        fixture : {
-            length : springLength,
-            position : vector([0, springLength, 0])
-        },
-        mass: {
-            m : 10,
-            position : vector([springLength, springLength, 0]),
-            velocity : vector([0, 0, 0])
-        },
-        springLength
-    };
-})();
+        return {
+            gravity : vector([0, -10, 0]),
+            springConstant : 100,
+            airResistance : 5,
+            magnets : [],
+            fixture : {
+                length : springLength,
+                position : vector([0, springLength, 0])
+            },
+            mass: {
+                m : 10,
+                position : vector([springLength, springLength, 0]),
+                velocity : vector([0, 0, 0])
+            },
+            springLength
+        };
+    })();
 
 const presets = {
+    'Blank' : {
+        magnets : []
+    },
     'Triangle' : {
         magnets : [
             {position:vector([ 5 * Math.sin(Math.PI * 2 * 2 / 6), -1, 5 * Math.cos(Math.PI * 2 * 2 / 6)]),m:8},
             {position:vector([ 5 * Math.sin(Math.PI * 2 * 4 / 6), -1, 5 * Math.cos(Math.PI * 2 * 4 / 6)]),m:8},
-            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:9}
-        ]
+            {position:vector([ 5 * Math.sin(Math.PI * 2 * 6 / 6), -1, 5 * Math.cos(Math.PI * 2 * 6 / 6)]),m:8}
+        ],
+        position : vector([springLength, springLength, 0]),
+        velocity : vector([0, 0, 10])
     },
     'Square' : {
         magnets : [
-            {position: vector([-3, 0, -3]), m:5},
-            {position: vector([-3, 0, 3]), m:5},
-            {position: vector([3, 0, -3]), m:5},
-            {position: vector([3, 0, 3]), m:5}
-        ]
+            {position: vector([-3, 0, -3]), m:6},
+            {position: vector([-3, 0, 3]),  m:6},
+            {position: vector([3, 0, -3]),  m:6},
+            {position: vector([3, 0, 3]),   m:6}
+        ],
+        position : vector([springLength, springLength, 0]),
+        velocity : vector([0, 0, -10])
     }
 };
