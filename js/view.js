@@ -150,11 +150,26 @@ const view = (() => {
             const mouseX = (canvasCoords.x - canvasWidth/2) / magnification,
                 mouseZ = (-canvasHeight/2 + canvasCoords.y)/magnification,
                 l = Math.sqrt(mouseX * mouseX + mouseZ * mouseZ),
-                h = Math.sqrt(model.springLength * model.springLength - l * l),
+                h = Math.sqrt(Math.max(model.springLength * model.springLength - l * l, 0)),
                 outside = l > model.springLength,
                 mouseY = outside ? model.springLength : model.springLength - h;
 
             const mouseCoords = vector([mouseX, mouseY, mouseZ]);
+            document.dispatchEvent(new CustomEvent('massMoved', {detail : {position : mouseCoords}}));
+        }
+    });
+
+    viewSideCanvas.onMouseMove((canvasCoords, magnification, canvasWidth, canvasHeight) => {
+        if (shiftDown){
+            const mouseX = (canvasCoords.x - canvasWidth/2) / magnification,
+                mouseY = (canvasHeight/2 - canvasCoords.y)/magnification,
+                l = Math.sqrt(mouseX * mouseX + mouseY * mouseY),
+                d = Math.sqrt(Math.max(model.springLength * model.springLength - l * l, 0)),
+                outside = d > model.springLength,
+                mouseZ = outside ? model.springLength : model.springLength - d;
+
+            const mouseCoords = vector([mouseX, mouseY, mouseZ]);
+            console.log(mouseX, mouseY, mouseZ, l, d)
             document.dispatchEvent(new CustomEvent('massMoved', {detail : {position : mouseCoords}}));
         }
     });
