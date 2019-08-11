@@ -1,4 +1,4 @@
-# magnetic-pendulum
+Magnetic Pendulum Simulation
 
 <p>
     Here's a JavaScript <a href="https://codebox.net/pages/magnetic-pendulum/demo">simulation of a magnetic pendulum</a> which more or less follows the laws of physics. The pendulum
